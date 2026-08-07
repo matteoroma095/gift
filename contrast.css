@@ -2,7 +2,8 @@
    Bright images get a stronger dark glass; dark images stay more transparent. */
 
 #s1{--veil-top:.11;--veil-bottom:.27;--panel-top:.54;--panel-bottom:.31;--bg-brightness:.74}
-#s2{--veil-top:.16;--veil-bottom:.36;--panel-top:.64;--panel-bottom:.39;--bg-brightness:.76}
+/* The original source for screen 2 was the only damaged media file. Reuse a crisp HQ photo rather than showing a degraded frame. */
+#s2{--bg-hq:url('assets/hq/personal/04-choice.webp');--bg-fallback:url('assets/hq/personal/04-choice.webp');--pos:50% 43%;--veil-top:.16;--veil-bottom:.36;--panel-top:.64;--panel-bottom:.39;--bg-brightness:.76}
 #s3{--veil-top:.035;--veil-bottom:.14;--panel-top:.34;--panel-bottom:.18;--bg-brightness:.66}
 #s4{--veil-top:.10;--veil-bottom:.29;--panel-top:.55;--panel-bottom:.31;--bg-brightness:.72}
 #s5{--veil-top:.035;--veil-bottom:.15;--panel-top:.34;--panel-bottom:.18;--bg-brightness:.62}
