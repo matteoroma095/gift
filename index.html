@@ -6,6 +6,7 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="theme-color" content="#0c2f38">
   <title>Un regalo per te</title>
+  <link rel="preload" as="image" href="assets/personal/01-opening.jpg">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,7 +16,7 @@
   </header>
 
   <main id="app">
-    <section id="s1" class="screen active" data-photo="01-opening">
+    <section id="s1" class="screen active">
       <div class="panel hero-panel">
         <p class="eyebrow">C'È QUALCOSA PER TE</p>
         <h1>Ho pensato<br>a qualcosa<br>di diverso.</h1>
@@ -25,7 +26,7 @@
       </div>
     </section>
 
-    <section id="s2" class="screen" data-photo="02-clue-1">
+    <section id="s2" class="screen">
       <div class="panel">
         <div class="number-badge">1</div>
         <p class="eyebrow">PICCOLO INDIZIO</p>
@@ -35,7 +36,7 @@
       </div>
     </section>
 
-    <section id="s3" class="screen" data-photo="03-clue-2">
+    <section id="s3" class="screen">
       <div class="panel">
         <div class="number-badge">2</div>
         <p class="eyebrow">ALTRO INDIZIO</p>
@@ -45,7 +46,7 @@
       </div>
     </section>
 
-    <section id="s4" class="screen" data-photo="04-choice">
+    <section id="s4" class="screen">
       <div class="panel">
         <p class="eyebrow">PRIMA DEVI FARE UNA SCELTA</p>
         <h2>Scegline una.</h2>
@@ -59,7 +60,7 @@
       </div>
     </section>
 
-    <section id="s5" class="screen" data-photo="05-scratch">
+    <section id="s5" class="screen">
       <div class="panel scratch-panel">
         <p class="eyebrow" id="pickedLabel">HAI SCELTO LA CARTA</p>
         <h2>Adesso gratta. ✨</h2>
@@ -69,7 +70,7 @@
       </div>
     </section>
 
-    <section id="s5r" class="screen" data-photo="06-first-reveal">
+    <section id="s5r" class="screen">
       <div class="panel reveal-panel">
         <p class="eyebrow">HAI PESCATO…</p>
         <div id="firstRevealMedia" class="treatment-media"></div>
@@ -83,7 +84,7 @@
       </div>
     </section>
 
-    <section id="s6like" class="screen" data-photo="07-response">
+    <section id="s6like" class="screen">
       <div class="panel">
         <p class="eyebrow">OTTIMA SCELTA</p>
         <h2>Ottima scelta. ❤️</h2>
@@ -92,7 +93,7 @@
       </div>
     </section>
 
-    <section id="s6no" class="screen" data-photo="07-response">
+    <section id="s6no" class="screen">
       <div class="panel">
         <p class="eyebrow">LO IMMAGINAVO 😂</p>
         <h2>Avevo previsto<br>anche questo.</h2>
@@ -101,7 +102,7 @@
       </div>
     </section>
 
-    <section id="s7" class="screen" data-photo="08-plot-twist">
+    <section id="s7" class="screen">
       <div class="panel">
         <p class="eyebrow">PLOT TWIST</p>
         <h2>Non era davvero<br>una lotteria. ❤️</h2>
@@ -116,28 +117,46 @@
       </div>
     </section>
 
-    <section id="s8" class="screen options-screen" data-photo="09-options">
+    <section id="s8" class="screen options-screen">
       <div class="panel wide-panel">
         <p class="eyebrow">ADESSO NIENTE TRUCCHI</p>
         <h2>Le 4 possibilità.</h2>
         <p class="lead">Grattale tutte. Poi scegli quella che vuoi. ✨</p>
+
+        <div id="selectionPrompt" class="selection-prompt" hidden>
+          <p class="eyebrow">ULTIMA SCELTA</p>
+          <h3>Quale scegli davvero? ❤️</h3>
+          <p>Adesso seleziona il trattamento definitivo. Potrai confermarlo appena sotto.</p>
+        </div>
+
         <div id="allScratch" class="all-scratch"></div>
-        <button id="finishButton" class="primary finish-button" data-go="s9" hidden>❤️ Ho visto tutto</button>
+
+        <div id="choiceSummary" class="choice-summary" hidden>
+          <span>Hai selezionato</span>
+          <strong id="choiceSummaryName"></strong>
+        </div>
+        <button id="confirmChoiceButton" class="primary finish-button" type="button" hidden>Conferma questa scelta ❤️</button>
       </div>
     </section>
 
-    <section id="s9" class="screen" data-photo="10-final">
+    <section id="s9" class="screen">
       <div class="panel final-panel">
         <p class="eyebrow">IL REGALO È TUO</p>
         <h2>Nadia’s<br>Beauty Day ❤️</h2>
+
+        <div class="final-choice-card">
+          <p class="final-choice-kicker">HAI SCELTO</p>
+          <div id="finalChoiceMedia" class="treatment-media final-treatment-media"></div>
+          <h3 id="finalChoiceName"></h3>
+          <p id="finalChoiceNote" class="lead compact"></p>
+        </div>
+
         <div class="check-list">
           <p>✓ trattamento scelto da Nadia</p>
           <p>✓ appuntamento quando vuoi</p>
           <p>✓ zero decisioni discutibili prese dal fidanzato</p>
-          <p>✓ costo per Nadia · €0,00</p>
         </div>
-        <p class="lead final-copy">Ora devi solo dirmi quale. ❤️</p>
-        <button id="resetButton" class="secondary">Ricomincia il gioco</button>
+        <p class="lead final-copy">Ora devi solo dirmi quando. ❤️</p>
       </div>
     </section>
   </main>
