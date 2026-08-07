@@ -1,0 +1,65 @@
+/* Per-screen contrast tuning based on the actual luminance of each source photo.
+   Bright images get a stronger dark glass; dark images stay more transparent. */
+
+#s1{--veil-top:.11;--veil-bottom:.27;--panel-top:.54;--panel-bottom:.31;--bg-brightness:.74}
+#s2{--veil-top:.16;--veil-bottom:.36;--panel-top:.64;--panel-bottom:.39;--bg-brightness:.76}
+#s3{--veil-top:.035;--veil-bottom:.14;--panel-top:.34;--panel-bottom:.18;--bg-brightness:.66}
+#s4{--veil-top:.10;--veil-bottom:.29;--panel-top:.55;--panel-bottom:.31;--bg-brightness:.72}
+#s5{--veil-top:.035;--veil-bottom:.15;--panel-top:.34;--panel-bottom:.18;--bg-brightness:.62}
+#s5r{--veil-top:.06;--veil-bottom:.21;--panel-top:.43;--panel-bottom:.23;--bg-brightness:.68}
+#s6like,#s6no{--veil-top:.06;--veil-bottom:.21;--panel-top:.44;--panel-bottom:.23;--bg-brightness:.68}
+#s7{--veil-top:.035;--veil-bottom:.15;--panel-top:.32;--panel-bottom:.17;--bg-brightness:.62}
+#s8{--veil-top:.05;--veil-bottom:.20;--panel-top:.40;--panel-bottom:.22;--bg-brightness:.66}
+#s9{--veil-top:.09;--veil-bottom:.36;--bg-brightness:.60}
+
+.panel{
+  box-shadow:0 22px 70px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.10);
+}
+.panel h1,.panel h2,.panel h3{
+  text-shadow:0 4px 18px rgba(0,0,0,.92),0 1px 3px rgba(0,0,0,.90);
+}
+.panel .lead,.panel .eyebrow{
+  text-shadow:0 3px 12px rgba(0,0,0,.94),0 1px 3px rgba(0,0,0,.86);
+}
+
+/* Keep the main photo crisp. Only the edge-filling duplicate is blurred. */
+.screen::before{
+  filter:blur(26px) brightness(var(--bg-brightness)) saturate(.96);
+  transform:scale(1.08);
+}
+.screen::after{
+  filter:none;
+}
+
+/* Birthday finale: inspired by the printed card, rebuilt as real HTML so the
+   typography stays razor-sharp and there is no QR code in the final screen. */
+.birthday-card{
+  background:
+    radial-gradient(circle at 50% 19%,rgba(230,184,95,.12),transparent 30%),
+    linear-gradient(180deg,rgba(0,0,0,.76) 0%,rgba(0,0,0,.23) 42%,rgba(0,0,0,.43) 71%,rgba(0,0,0,.82) 100%);
+  border-color:rgba(246,217,149,.96);
+}
+.birthday-copy h2,.birthday-copy h3{
+  color:#f4cf82;
+  text-shadow:0 4px 18px rgba(0,0,0,.98),0 0 18px rgba(230,184,95,.18);
+}
+.birthday-script{
+  color:#ffe7a2;
+  text-shadow:0 0 12px rgba(230,184,95,.62),0 4px 16px rgba(0,0,0,.98);
+}
+.birthday-message{
+  color:#fff0c9;
+  text-shadow:0 4px 16px rgba(0,0,0,1),0 1px 3px #000;
+}
+.birthday-gift{
+  background:rgba(0,0,0,.78);
+  border-color:rgba(246,217,149,.78);
+}
+
+@media(max-width:480px){
+  .panel{box-shadow:0 18px 52px rgba(0,0,0,.27),inset 0 1px 0 rgba(255,255,255,.09)}
+  .birthday-copy h2{font-size:clamp(42px,12.4vw,61px)}
+  .birthday-copy h3{font-size:clamp(34px,9.6vw,48px)}
+  .birthday-script{font-size:clamp(51px,15vw,72px)}
+  .birthday-message{font-size:clamp(16px,4.5vw,20px)}
+}
