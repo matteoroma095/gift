@@ -38,6 +38,7 @@ jobs:
           python <<'PY'
           from pathlib import Path
           import base64
+          import re
           import urllib.request
           import cv2
           import numpy as np
@@ -60,10 +61,17 @@ jobs:
               l = cv2.createCLAHE(clipLimit=1.05, tileGridSize=(8, 8)).apply(l)
               return cv2.cvtColor(cv2.merge((l, a, b)), cv2.COLOR_LAB2BGR)
 
-          # Personal photos: the .b64 files are the reliable browser-safe media
-          # already present in this repository. Decode those, then use EDSR x4.
+          def decode_b64_file(path):
+              text = path.read_text(encoding='utf-8', errors='ignore')
+              text = re.sub(r'[^A-Za-z0-9+/=]', '', text)
+              text = text.rstrip('=')
+              text += '=' * ((4 - len(text) % 4) % 4)
+              return base64.b64decode(text, validate=False)
+
+          # Personal photos: decode the reliable browser-safe base64 media,
+          # then enlarge them with EDSR x4 and a conservative detail pass.
           for src in sorted(Path('assets/bg64').glob('*.b64')):
-              raw = base64.b64decode(src.read_text(encoding='utf-8').strip())
+              raw = decode_b64_file(src)
               image = cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
               if image is None:
                   raise RuntimeError(f'Cannot decode {src}')
@@ -78,8 +86,8 @@ jobs:
                   raise RuntimeError(f'Cannot write {dst}')
               print(f'{src} -> {dst}: {enhanced.shape[1]}x{enhanced.shape[0]}')
 
-          # Treatment media: download the current full-size Clinic creatives,
-          # rather than upscaling the previously compressed repository copies.
+          # Treatment media: use current full-size Clinic creatives instead of
+          # the old over-compressed repository thumbnails.
           treatment_urls = {
               'botox-2-zone': 'https://checkout.clinicitalia.it/app/uploads/2026/04/02_Clinic-promo-botox2zone-1x1-2.jpg',
               'botox-completo': 'https://checkout.clinicitalia.it/app/uploads/2026/04/03_Clinic-promo-botoxfull-1x1-2.jpg',
