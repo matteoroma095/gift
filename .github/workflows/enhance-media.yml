@@ -33,7 +33,7 @@ jobs:
             -o .media-tools/EDSR_x4.pb \
             https://github.com/Saafke/EDSR_Tensorflow/raw/master/models/EDSR_x4.pb
 
-      - name: Decode, enhance and download pristine media
+      - name: Enhance personal photos and treatment media
         run: |
           python <<'PY'
           from pathlib import Path
@@ -54,11 +54,11 @@ jobs:
           sr.setModel('edsr', 4)
 
           def polish(image):
-              blurred = cv2.GaussianBlur(image, (0, 0), 1.0)
-              image = cv2.addWeighted(image, 1.10, blurred, -0.10, 0)
+              blurred = cv2.GaussianBlur(image, (0, 0), 0.85)
+              image = cv2.addWeighted(image, 1.08, blurred, -0.08, 0)
               lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
               l, a, b = cv2.split(lab)
-              l = cv2.createCLAHE(clipLimit=1.05, tileGridSize=(8, 8)).apply(l)
+              l = cv2.createCLAHE(clipLimit=1.03, tileGridSize=(8, 8)).apply(l)
               return cv2.cvtColor(cv2.merge((l, a, b)), cv2.COLOR_LAB2BGR)
 
           def decode_b64_file(path):
@@ -66,28 +66,49 @@ jobs:
               text = re.sub(r'[^A-Za-z0-9+/=]', '', text)
               text = text.rstrip('=')
               text += '=' * ((4 - len(text) % 4) % 4)
-              return base64.b64decode(text, validate=False)
+              raw = base64.b64decode(text, validate=False)
+              return cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
 
-          # Personal photos: decode the reliable browser-safe base64 media,
-          # then enlarge them with EDSR x4 and a conservative detail pass.
-          for src in sorted(Path('assets/bg64').glob('*.b64')):
-              raw = decode_b64_file(src)
-              image = cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
+          stems = [
+              '01-opening','02-clue-1','03-clue-2','04-choice','05-scratch',
+              '06-first-reveal','07-response','08-plot-twist','09-options','10-final'
+          ]
+
+          for stem in stems:
+              image = None
+              b64_path = Path('assets/bg64') / f'{stem}.b64'
+              jpg_path = Path('assets/personal') / f'{stem}.jpg'
+
+              if b64_path.exists():
+                  try:
+                      image = decode_b64_file(b64_path)
+                  except Exception as exc:
+                      print(f'Base64 source skipped for {stem}: {exc}')
+
+              if image is None and jpg_path.exists():
+                  image = cv2.imread(str(jpg_path), cv2.IMREAD_COLOR)
+                  print(f'Using JPEG fallback for {stem}')
+
               if image is None:
-                  raise RuntimeError(f'Cannot decode {src}')
+                  print(f'Skipping {stem}: no decodable personal source')
+                  continue
+
               try:
                   enhanced = sr.upsample(image)
               except Exception as exc:
-                  print(f'EDSR fallback for {src}: {exc}')
-                  enhanced = cv2.resize(image, (image.shape[1]*4, image.shape[0]*4), interpolation=cv2.INTER_LANCZOS4)
+                  print(f'EDSR fallback for {stem}: {exc}')
+                  enhanced = cv2.resize(
+                      image,
+                      (image.shape[1] * 4, image.shape[0] * 4),
+                      interpolation=cv2.INTER_LANCZOS4,
+                  )
+
               enhanced = polish(enhanced)
-              dst = hq_personal / f'{src.stem}.webp'
+              dst = hq_personal / f'{stem}.webp'
               if not cv2.imwrite(str(dst), enhanced, [cv2.IMWRITE_WEBP_QUALITY, 94]):
                   raise RuntimeError(f'Cannot write {dst}')
-              print(f'{src} -> {dst}: {enhanced.shape[1]}x{enhanced.shape[0]}')
+              print(f'{stem} -> {dst}: {enhanced.shape[1]}x{enhanced.shape[0]}')
 
-          # Treatment media: use current full-size Clinic creatives instead of
-          # the old over-compressed repository thumbnails.
           treatment_urls = {
               'botox-2-zone': 'https://checkout.clinicitalia.it/app/uploads/2026/04/02_Clinic-promo-botox2zone-1x1-2.jpg',
               'botox-completo': 'https://checkout.clinicitalia.it/app/uploads/2026/04/03_Clinic-promo-botoxfull-1x1-2.jpg',
@@ -95,18 +116,33 @@ jobs:
               'filler-contouring': 'https://checkout.clinicitalia.it/app/uploads/2026/04/07_Clinic-promo-longcont-1x1-2.jpg',
           }
           headers = {'User-Agent': 'Mozilla/5.0 gift-media-refresh/1.0'}
+
           for name, url in treatment_urls.items():
-              req = urllib.request.Request(url, headers=headers)
-              with urllib.request.urlopen(req, timeout=30) as response:
-                  raw = response.read()
-              image = cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
+              image = None
+              try:
+                  req = urllib.request.Request(url, headers=headers)
+                  with urllib.request.urlopen(req, timeout=30) as response:
+                      raw = response.read()
+                  image = cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
+                  if image is not None:
+                      print(f'Downloaded full-size Clinic media for {name}')
+              except Exception as exc:
+                  print(f'Clinic download fallback for {name}: {exc}')
+
               if image is None:
-                  raise RuntimeError(f'Cannot decode downloaded treatment {name}')
+                  local = Path('assets/treatments') / f'{name}.jpg'
+                  if local.exists():
+                      image = cv2.imread(str(local), cv2.IMREAD_COLOR)
+
+              if image is None:
+                  print(f'Skipping treatment {name}: no decodable source')
+                  continue
+
               image = polish(image)
               dst = hq_treatments / f'{name}.webp'
               if not cv2.imwrite(str(dst), image, [cv2.IMWRITE_WEBP_QUALITY, 95]):
                   raise RuntimeError(f'Cannot write {dst}')
-              print(f'{url} -> {dst}: {image.shape[1]}x{image.shape[0]}')
+              print(f'{name} -> {dst}: {image.shape[1]}x{image.shape[0]}')
           PY
 
       - name: Commit enhanced assets
