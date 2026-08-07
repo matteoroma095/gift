@@ -9,16 +9,49 @@
   ];
 
   const progressMap = {s1:1,s2:2,s3:3,s4:4,s5:5,s5r:6,s6like:7,s6no:7,s7:8,s8:9,s9:10};
+  const optimizedBackgrounds = {
+    s1:'01-opening',
+    s2:'02-clue-1',
+    s3:'03-clue-2',
+    s5:'05-scratch'
+  };
+  const backgroundCache = new Map();
+
   let selectedIndex = 0;
   let finalChoiceIndex = null;
   let revealedOptions = new Set();
   let optionRecords = [];
+
+  async function loadOptimizedBackground(id) {
+    const key = optimizedBackgrounds[id];
+    if (!key) return;
+    const screen = document.getElementById(id);
+    if (!screen) return;
+
+    try {
+      let promise = backgroundCache.get(key);
+      if (!promise) {
+        promise = fetch(`assets/bg64/${key}.b64`, {cache:'force-cache'})
+          .then(r => {
+            if (!r.ok) throw new Error(`Background ${r.status}`);
+            return r.text();
+          })
+          .then(value => value.trim());
+        backgroundCache.set(key, promise);
+      }
+      const base64 = await promise;
+      if (base64) screen.style.setProperty('--bg', `url("data:image/webp;base64,${base64}")`);
+    } catch (_) {
+      // The normal JPEG background defined in CSS remains the fallback.
+    }
+  }
 
   function go(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
     const pct = (progressMap[id] || 1) * 10;
     document.getElementById('progressBar').style.width = pct + '%';
     window.scrollTo({top:0, behavior:'instant'});
+    loadOptimizedBackground(id);
     if (id === 's8' && !document.getElementById('allScratch').children.length) renderAllScratch();
   }
 
@@ -232,5 +265,6 @@
     return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   }
 
+  Object.keys(optimizedBackgrounds).forEach(loadOptimizedBackground);
   go('s1');
 })();
