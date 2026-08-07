@@ -13,7 +13,14 @@
     s1:'01-opening',
     s2:'02-clue-1',
     s3:'03-clue-2',
-    s5:'05-scratch'
+    s4:'04-choice',
+    s5:'05-scratch',
+    s5r:'06-first-reveal',
+    s6like:'07-response',
+    s6no:'07-response',
+    s7:'08-plot-twist',
+    s8:'09-options',
+    s9:'10-final'
   };
   const backgroundCache = new Map();
 
