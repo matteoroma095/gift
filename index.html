@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#0c2f38">
+  <title>Un regalo per te</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar" aria-label="Avanzamento">
+    <div class="brand"><span class="brand-dot"></span> UN REGALO PER TE</div>
+    <div class="progress"><i id="progressBar"></i></div>
+  </header>
+
+  <main id="app">
+    <section id="s1" class="screen active" data-photo="01-opening">
+      <div class="panel hero-panel">
+        <p class="eyebrow">C'È QUALCOSA PER TE</p>
+        <h1>Ho pensato<br>a qualcosa<br>di diverso.</h1>
+        <p class="lead">Non si scarta. Non si indossa.<br>E soprattutto… <strong>non potevo scegliere io al posto tuo.</strong></p>
+        <div class="heart">❤️</div>
+        <button class="primary" data-go="s2">Inizia</button>
+      </div>
+    </section>
+
+    <section id="s2" class="screen" data-photo="02-clue-1">
+      <div class="panel">
+        <div class="number-badge">1</div>
+        <p class="eyebrow">PICCOLO INDIZIO</p>
+        <h2>È qualcosa<br>solo per te.</h2>
+        <p class="lead">Richiede un po’ di tempo…<br>ma non prende spazio nell’armadio. 😏</p>
+        <button class="primary" data-go="s3">Altro indizio</button>
+      </div>
+    </section>
+
+    <section id="s3" class="screen" data-photo="03-clue-2">
+      <div class="panel">
+        <div class="number-badge">2</div>
+        <p class="eyebrow">ALTRO INDIZIO</p>
+        <h2>Questa volta<br>niente taglie.</h2>
+        <p class="lead lines">Non ho scelto un colore.<br>Non ho scelto una misura.<br>Nessuna vacanza ( purtroppo 🥲)<br>E, <strong>non mi sono nemmeno sprecato di selezionare il regalo esatto.</strong> 🥱</p>
+        <button class="primary" data-go="s4">Voglio saperlo</button>
+      </div>
+    </section>
+
+    <section id="s4" class="screen" data-photo="04-choice">
+      <div class="panel">
+        <p class="eyebrow">PRIMA DEVI FARE UNA SCELTA</p>
+        <h2>Scegline una.</h2>
+        <p class="lead">Non pensarci troppo.<br>Fidati dell’istinto. ❤️</p>
+        <div class="mystery-grid" aria-label="Scegli una carta">
+          <button class="mystery-card" data-card="0"><span>1</span><small>?</small></button>
+          <button class="mystery-card" data-card="1"><span>2</span><small>?</small></button>
+          <button class="mystery-card" data-card="2"><span>3</span><small>?</small></button>
+          <button class="mystery-card" data-card="3"><span>4</span><small>?</small></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s5" class="screen" data-photo="05-scratch">
+      <div class="panel scratch-panel">
+        <p class="eyebrow" id="pickedLabel">HAI SCELTO LA CARTA</p>
+        <h2>Adesso gratta. ✨</h2>
+        <p class="lead">Passa il dito sulla carta per scoprire cosa hai pescato.</p>
+        <div id="firstScratch" class="scratch-host"></div>
+        <button id="firstFallback" class="text-button" type="button">Se il gratta non parte, tocca qui per scoprire e continuare</button>
+      </div>
+    </section>
+
+    <section id="s5r" class="screen" data-photo="06-first-reveal">
+      <div class="panel reveal-panel">
+        <p class="eyebrow">HAI PESCATO…</p>
+        <div id="firstRevealMedia" class="treatment-media"></div>
+        <h2 id="firstRevealName"></h2>
+        <p id="firstRevealNote" class="lead compact"></p>
+        <p class="lead">Questo potrebbe essere il tuo regalo. ❤️</p>
+        <div class="response-buttons">
+          <button class="primary" data-go="s6like">😍 Mi piace</button>
+          <button class="secondary" data-go="s6no">🤔 Mmm… non sono convinta</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s6like" class="screen" data-photo="07-response">
+      <div class="panel">
+        <p class="eyebrow">OTTIMA SCELTA</p>
+        <h2>Ottima scelta. ❤️</h2>
+        <p class="lead">Ma aspetta…<br><strong>C’è una cosa che non ti avevo detto.</strong></p>
+        <button class="primary" data-go="s7">Cosa?</button>
+      </div>
+    </section>
+
+    <section id="s6no" class="screen" data-photo="07-response">
+      <div class="panel">
+        <p class="eyebrow">LO IMMAGINAVO 😂</p>
+        <h2>Avevo previsto<br>anche questo.</h2>
+        <p class="lead">Perché sarebbe stato abbastanza pericoloso <strong>scegliere io un trattamento estetico per te.</strong> 😇</p>
+        <button class="primary" data-go="s7">Piano B</button>
+      </div>
+    </section>
+
+    <section id="s7" class="screen" data-photo="08-plot-twist">
+      <div class="panel">
+        <p class="eyebrow">PLOT TWIST</p>
+        <h2>Non era davvero<br>una lotteria. ❤️</h2>
+        <p class="lead">La prima scelta faceva parte del gioco.</p>
+        <p class="lead strong-line">Il regalo vero è un trattamento Clinic a tua scelta.</p>
+        <div class="inner-glass">
+          <h3>Scegli tu.</h3>
+          <p>Io avevo selezionato quattro idee. Tu devi soltanto trovare quella che preferisci.</p>
+        </div>
+        <p class="lead compact">E se nessuna delle quattro fosse quella giusta, ne scegliamo un’altra insieme.</p>
+        <button class="primary" data-go="s8">Scopri le 4 possibilità</button>
+      </div>
+    </section>
+
+    <section id="s8" class="screen options-screen" data-photo="09-options">
+      <div class="panel wide-panel">
+        <p class="eyebrow">ADESSO NIENTE TRUCCHI</p>
+        <h2>Le 4 possibilità.</h2>
+        <p class="lead">Grattale tutte. Poi scegli quella che vuoi. ✨</p>
+        <div id="allScratch" class="all-scratch"></div>
+        <button id="finishButton" class="primary finish-button" data-go="s9" hidden>❤️ Ho visto tutto</button>
+      </div>
+    </section>
+
+    <section id="s9" class="screen" data-photo="10-final">
+      <div class="panel final-panel">
+        <p class="eyebrow">IL REGALO È TUO</p>
+        <h2>Nadia’s<br>Beauty Day ❤️</h2>
+        <div class="check-list">
+          <p>✓ trattamento scelto da Nadia</p>
+          <p>✓ appuntamento quando vuoi</p>
+          <p>✓ zero decisioni discutibili prese dal fidanzato</p>
+          <p>✓ costo per Nadia · €0,00</p>
+        </div>
+        <p class="lead final-copy">Ora devi solo dirmi quale. ❤️</p>
+        <button id="resetButton" class="secondary">Ricomincia il gioco</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
