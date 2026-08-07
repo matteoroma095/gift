@@ -2,10 +2,10 @@
   'use strict';
 
   const treatments = [
-    { name:'Botox — 2 zone', image:'assets/treatments/botox-2-zone.jpg', note:'' },
-    { name:'Botox — completo', image:'assets/treatments/botox-completo.jpg', note:'' },
-    { name:'Botox 2 zone + Filler Longevity', image:'assets/treatments/botox-filler-longevity.jpg', note:'Labbra, nasogeniene o zigomi' },
-    { name:'Filler Longevity Contouring — 2 fiale', image:'assets/treatments/filler-contouring.jpg', note:'' }
+    { name:'Botox — 2 zone', image:'assets/hq/treatments/botox-2-zone.webp', fallback:'assets/treatments/botox-2-zone.jpg', note:'' },
+    { name:'Botox — completo', image:'assets/hq/treatments/botox-completo.webp', fallback:'assets/treatments/botox-completo.jpg', note:'' },
+    { name:'Botox 2 zone + Filler Longevity', image:'assets/hq/treatments/botox-filler-longevity.webp', fallback:'assets/treatments/botox-filler-longevity.jpg', note:'Labbra, nasogeniene o zigomi' },
+    { name:'Filler Longevity Contouring — 2 fiale', image:'assets/hq/treatments/filler-contouring.webp', fallback:'assets/treatments/filler-contouring.jpg', note:'' }
   ];
 
   const progressMap = {s1:1,s2:2,s3:3,s4:4,s5:5,s5r:6,s6like:7,s6no:7,s7:8,s8:9,s9:10};
@@ -17,6 +17,7 @@
 
   function go(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+    document.body.classList.toggle('final-mode', id === 's9');
     const pct = (progressMap[id] || 1) * 10;
     document.getElementById('progressBar').style.width = pct + '%';
     window.scrollTo({top:0, behavior:'instant'});
@@ -43,7 +44,13 @@
     img.loading = 'eager';
     img.decoding = 'async';
     img.src = treatment.image;
+    let triedFallback = false;
     img.addEventListener('error', () => {
+      if (!triedFallback && treatment.fallback) {
+        triedFallback = true;
+        img.src = treatment.fallback;
+        return;
+      }
       img.style.display = 'none';
       const parent = img.parentElement;
       if (parent && !parent.querySelector('.media-fallback')) {
