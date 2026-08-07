@@ -9,57 +9,11 @@
   ];
 
   const progressMap = {s1:1,s2:2,s3:3,s4:4,s5:5,s5r:6,s6like:7,s6no:7,s7:8,s8:9,s9:10};
-  const backgroundKeys = {
-    s1:'01-opening',
-    s2:'02-clue-1',
-    s3:'03-clue-2',
-    s4:'04-choice',
-    s5:'05-scratch',
-    s5r:'06-first-reveal',
-    s6like:'07-response',
-    s6no:'07-response',
-    s7:'08-plot-twist',
-    s8:'09-options',
-    s9:'09-options'
-  };
-  const backgroundPromises = new Map();
 
   let selectedIndex = 0;
   let finalChoiceIndex = null;
   let revealedOptions = new Set();
   let optionRecords = [];
-
-  function ensureBackground(id) {
-    const key = backgroundKeys[id];
-    const screen = document.getElementById(id);
-    if (!key || !screen) return Promise.resolve();
-
-    if (backgroundPromises.has(key)) {
-      return backgroundPromises.get(key).then(url => screen.style.setProperty('--bg-hq', `url("${url}")`));
-    }
-
-    const promise = new Promise(resolve => {
-      const hq = `assets/hq/personal/${key}.webp?v=20260807-quality3`;
-      const probe = new Image();
-      probe.onload = () => resolve(hq);
-      probe.onerror = async () => {
-        try {
-          const response = await fetch(`assets/bg64/${key}.b64?v=20260807-quality3`, {cache:'force-cache'});
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const base64 = (await response.text()).trim();
-          resolve(`data:image/webp;base64,${base64}`);
-        } catch (_) {
-          resolve('');
-        }
-      };
-      probe.src = hq;
-    });
-
-    backgroundPromises.set(key, promise);
-    return promise.then(url => {
-      if (url) screen.style.setProperty('--bg-hq', `url("${url}")`);
-    });
-  }
 
   function go(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
@@ -67,7 +21,6 @@
     const pct = (progressMap[id] || 1) * 10;
     document.getElementById('progressBar').style.width = pct + '%';
     window.scrollTo({top:0, behavior:'instant'});
-    ensureBackground(id);
     if (id === 's8' && !document.getElementById('allScratch').children.length) renderAllScratch();
   }
 
@@ -291,6 +244,5 @@
     return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   }
 
-  Object.keys(backgroundKeys).forEach(ensureBackground);
   go('s1');
 })();
