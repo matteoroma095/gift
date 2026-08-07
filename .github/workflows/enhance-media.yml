@@ -37,8 +37,11 @@ jobs:
         run: |
           python <<'PY'
           from pathlib import Path
+          from PIL import Image, ImageFile
           import cv2
           import numpy as np
+
+          ImageFile.LOAD_TRUNCATED_IMAGES = True
 
           model_path = Path('.media-tools/EDSR_x4.pb')
           sr = cv2.dnn_superres.DnnSuperResImpl_create()
@@ -53,32 +56,35 @@ jobs:
           for src_dir, dst_dir in groups:
               dst_dir.mkdir(parents=True, exist_ok=True)
               for src in sorted(src_dir.glob('*.jpg')):
-                  image = cv2.imread(str(src), cv2.IMREAD_COLOR)
-                  if image is None:
-                      raise RuntimeError(f'Cannot read {src}')
+                  # Pillow is deliberately used for decoding because the original
+                  # mobile-optimised JPEGs contain harmless trailing bytes that
+                  # OpenCV's JPEG decoder may reject.
+                  pil = Image.open(src).convert('RGB')
+                  rgb = np.asarray(pil)
+                  image = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
 
                   try:
                       enhanced = sr.upsample(image)
-                  except Exception:
+                  except Exception as exc:
+                      print(f'EDSR fallback for {src}: {exc}')
                       enhanced = cv2.resize(
                           image,
                           (image.shape[1] * 4, image.shape[0] * 4),
                           interpolation=cv2.INTER_LANCZOS4,
                       )
 
-                  # Gentle unsharp mask: improves perceived detail without haloing faces.
                   blurred = cv2.GaussianBlur(enhanced, (0, 0), 1.0)
-                  enhanced = cv2.addWeighted(enhanced, 1.13, blurred, -0.13, 0)
+                  enhanced = cv2.addWeighted(enhanced, 1.12, blurred, -0.12, 0)
 
-                  # Keep colour natural while adding a very small contrast lift.
+                  # Mild local-contrast lift; intentionally conservative on faces.
                   lab = cv2.cvtColor(enhanced, cv2.COLOR_BGR2LAB)
                   l, a, b = cv2.split(lab)
-                  clahe = cv2.createCLAHE(clipLimit=1.15, tileGridSize=(8, 8))
+                  clahe = cv2.createCLAHE(clipLimit=1.08, tileGridSize=(8, 8))
                   l = clahe.apply(l)
                   enhanced = cv2.cvtColor(cv2.merge((l, a, b)), cv2.COLOR_LAB2BGR)
 
                   dst = dst_dir / f'{src.stem}.webp'
-                  ok = cv2.imwrite(str(dst), enhanced, [cv2.IMWRITE_WEBP_QUALITY, 92])
+                  ok = cv2.imwrite(str(dst), enhanced, [cv2.IMWRITE_WEBP_QUALITY, 93])
                   if not ok:
                       raise RuntimeError(f'Cannot write {dst}')
                   print(f'{src} -> {dst}  {enhanced.shape[1]}x{enhanced.shape[0]}')
@@ -88,6 +94,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add assets/hq/
           if git diff --cached --quiet; then
             echo "No enhanced media changes."
