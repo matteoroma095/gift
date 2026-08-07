@@ -1,10 +1,6 @@
 name: Bootstrap gift media
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/bootstrap-assets.yml'
   workflow_dispatch:
 
 permissions:
@@ -36,6 +32,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add assets/
           if git diff --cached --quiet; then
             echo "No media changes to commit."
