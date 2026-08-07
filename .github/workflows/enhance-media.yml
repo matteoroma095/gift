@@ -1,0 +1,97 @@
+name: Enhance gift media
+
+on:
+  push:
+    paths:
+      - '.github/workflows/enhance-media.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  enhance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install image tools
+        run: python -m pip install --disable-pip-version-check pillow opencv-contrib-python-headless
+
+      - name: Download EDSR super-resolution model
+        run: |
+          mkdir -p .media-tools
+          curl -L --fail --retry 3 \
+            -o .media-tools/EDSR_x4.pb \
+            https://github.com/Saafke/EDSR_Tensorflow/raw/master/models/EDSR_x4.pb
+
+      - name: Generate high-resolution web assets
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import cv2
+          import numpy as np
+
+          model_path = Path('.media-tools/EDSR_x4.pb')
+          sr = cv2.dnn_superres.DnnSuperResImpl_create()
+          sr.readModel(str(model_path))
+          sr.setModel('edsr', 4)
+
+          groups = [
+              (Path('assets/personal'), Path('assets/hq/personal')),
+              (Path('assets/treatments'), Path('assets/hq/treatments')),
+          ]
+
+          for src_dir, dst_dir in groups:
+              dst_dir.mkdir(parents=True, exist_ok=True)
+              for src in sorted(src_dir.glob('*.jpg')):
+                  image = cv2.imread(str(src), cv2.IMREAD_COLOR)
+                  if image is None:
+                      raise RuntimeError(f'Cannot read {src}')
+
+                  try:
+                      enhanced = sr.upsample(image)
+                  except Exception:
+                      enhanced = cv2.resize(
+                          image,
+                          (image.shape[1] * 4, image.shape[0] * 4),
+                          interpolation=cv2.INTER_LANCZOS4,
+                      )
+
+                  # Gentle unsharp mask: improves perceived detail without haloing faces.
+                  blurred = cv2.GaussianBlur(enhanced, (0, 0), 1.0)
+                  enhanced = cv2.addWeighted(enhanced, 1.13, blurred, -0.13, 0)
+
+                  # Keep colour natural while adding a very small contrast lift.
+                  lab = cv2.cvtColor(enhanced, cv2.COLOR_BGR2LAB)
+                  l, a, b = cv2.split(lab)
+                  clahe = cv2.createCLAHE(clipLimit=1.15, tileGridSize=(8, 8))
+                  l = clahe.apply(l)
+                  enhanced = cv2.cvtColor(cv2.merge((l, a, b)), cv2.COLOR_LAB2BGR)
+
+                  dst = dst_dir / f'{src.stem}.webp'
+                  ok = cv2.imwrite(str(dst), enhanced, [cv2.IMWRITE_WEBP_QUALITY, 92])
+                  if not ok:
+                      raise RuntimeError(f'Cannot write {dst}')
+                  print(f'{src} -> {dst}  {enhanced.shape[1]}x{enhanced.shape[0]}')
+          PY
+
+      - name: Commit enhanced assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/hq/
+          if git diff --cached --quiet; then
+            echo "No enhanced media changes."
+          else
+            git commit -m "Generate high-resolution gift media"
+            git push origin HEAD:main
+          fi
