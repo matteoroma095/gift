@@ -18,6 +18,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -38,11 +43,11 @@ jobs:
           mkdir -p .media-repaired/personal .media-repaired/treatments
           for src in assets/personal/*.jpg; do
             name="$(basename "$src" .jpg)"
-            ffmpeg -y -loglevel warning -err_detect ignore_err -i "$src" -frames:v 1 ".media-repaired/personal/${name}.png"
+            ffmpeg -y -loglevel error -err_detect ignore_err -i "$src" -frames:v 1 ".media-repaired/personal/${name}.png"
           done
           for src in assets/treatments/*.jpg; do
             name="$(basename "$src" .jpg)"
-            ffmpeg -y -loglevel warning -err_detect ignore_err -i "$src" -frames:v 1 ".media-repaired/treatments/${name}.png"
+            ffmpeg -y -loglevel error -err_detect ignore_err -i "$src" -frames:v 1 ".media-repaired/treatments/${name}.png"
           done
 
       - name: Generate high-resolution web assets
@@ -78,7 +83,6 @@ jobs:
                           interpolation=cv2.INTER_LANCZOS4,
                       )
 
-                  # Conservative sharpening + local contrast. Avoid aggressive facial artefacts.
                   blurred = cv2.GaussianBlur(enhanced, (0, 0), 1.0)
                   enhanced = cv2.addWeighted(enhanced, 1.10, blurred, -0.10, 0)
                   lab = cv2.cvtColor(enhanced, cv2.COLOR_BGR2LAB)
