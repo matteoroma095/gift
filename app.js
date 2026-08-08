@@ -15,6 +15,15 @@
   let revealedOptions = new Set();
   let optionRecords = [];
 
+  // Warm the four 1:1 Clinic creatives before the user reaches a scratch card.
+  // This avoids the brief empty/solid-colour state that some iPhone webviews
+  // showed while the image was still decoding.
+  treatments.forEach(t => {
+    const probe = new Image();
+    probe.decoding = 'async';
+    probe.src = t.image;
+  });
+
   function go(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
     document.body.classList.toggle('final-mode', id === 's9');
@@ -111,7 +120,7 @@
     const complete = () => {
       if (done) return;
       done = true;
-      shell.classList.add('started');
+      shell.classList.add('started','is-revealed');
       tiles.forEach(t => t.classList.add('gone'));
       grid.style.pointerEvents = 'none';
       setTimeout(() => onComplete && onComplete(), 220);
