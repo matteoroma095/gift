@@ -2,10 +2,10 @@
   'use strict';
 
   const treatments = [
-    { name:'Botox — 2 zone', image:'assets/hq/treatments/botox-2-zone.webp', fallback:'https://checkout.clinicitalia.it/app/uploads/2026/04/02_Clinic-promo-botox2zone-1x1-2.jpg', note:'' },
-    { name:'Botox — completo', image:'assets/hq/treatments/botox-completo.webp', fallback:'https://checkout.clinicitalia.it/app/uploads/2026/04/03_Clinic-promo-botoxfull-1x1-2.jpg', note:'' },
-    { name:'Botox 2 zone + Filler Longevity', image:'assets/hq/treatments/botox-filler-longevity.webp', fallback:'https://checkout.clinicitalia.it/app/uploads/2026/04/14_Clinic-promo-botox2zone_3fillerscelta_1x1.jpg', note:'Labbra, nasogeniene o zigomi' },
-    { name:'Filler Longevity Contouring — 2 fiale', image:'assets/hq/treatments/filler-contouring.webp', fallback:'https://checkout.clinicitalia.it/app/uploads/2026/04/07_Clinic-promo-longcont-1x1-2.jpg', note:'' }
+    { name:'Botox — 2 zone', image:'assets/hq/treatments/botox-2-zone.webp', note:'' },
+    { name:'Botox — completo', image:'assets/hq/treatments/botox-completo.webp', note:'' },
+    { name:'Botox 2 zone + Filler Longevity', image:'assets/hq/treatments/botox-filler-longevity.webp', note:'Labbra, nasogeniene o zigomi' },
+    { name:'Filler Longevity Contouring — 2 fiale', image:'assets/hq/treatments/filler-contouring.webp', note:'' }
   ];
 
   const progressMap = {s1:1,s2:2,s3:3,s4:4,s5:5,s5r:6,s6like:7,s6no:7,s7:8,s8:9,s9:10};
@@ -15,9 +15,6 @@
   let revealedOptions = new Set();
   let optionRecords = [];
 
-  // Warm the four 1:1 Clinic creatives before the user reaches a scratch card.
-  // This avoids the brief empty/solid-colour state that some iPhone webviews
-  // showed while the image was still decoding.
   treatments.forEach(t => {
     const probe = new Image();
     probe.decoding = 'async';
@@ -53,13 +50,7 @@
     img.loading = 'eager';
     img.decoding = 'async';
     img.src = treatment.image;
-    let triedFallback = false;
     img.addEventListener('error', () => {
-      if (!triedFallback && treatment.fallback) {
-        triedFallback = true;
-        img.src = treatment.fallback;
-        return;
-      }
       img.style.display = 'none';
       const parent = img.parentElement;
       if (parent && !parent.querySelector('.media-fallback')) {
