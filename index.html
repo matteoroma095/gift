@@ -5,11 +5,23 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="theme-color" content="#071116">
+  <link rel="canonical" href="https://matteoroma095.github.io/gift/">
+  <meta property="og:url" content="https://matteoroma095.github.io/gift/">
   <title>Un regalo per te</title>
   <link rel="preload" as="image" href="assets/hq/personal/01-opening.webp" type="image/webp">
-  <link rel="stylesheet" href="styles.css?v=20260808-v7">
-  <link rel="stylesheet" href="contrast.css?v=20260808-v7">
-  <link rel="stylesheet" href="visual-v7.css?v=20260808-v7">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="contrast.css">
+  <link rel="stylesheet" href="visual.css">
+  <script>
+    // The printed QR points to the canonical /gift/ URL. Old test links such
+    // as ?v=6 or ?v=7 are normalized immediately to the same permanent URL.
+    (() => {
+      if (location.search || location.hash) {
+        const cleanPath = location.pathname.endsWith('/') ? location.pathname : location.pathname + '/';
+        history.replaceState(null, '', cleanPath);
+      }
+    })();
+  </script>
 </head>
 <body>
   <header class="topbar" aria-label="Avanzamento">
@@ -164,6 +176,6 @@
     </section>
   </main>
 
-  <script src="app.js?v=20260808-v7"></script>
+  <script src="app.js"></script>
 </body>
 </html>
